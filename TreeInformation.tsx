@@ -32,11 +32,16 @@ const TreeInformation = () => {
         console.log("Fetched Tree Data:", treeData);
         setTree(treeData);
       } catch (error) {
-        console.error("Error fetching tree data:", error);
+        if (error instanceof Error) {
+          console.error("Error fetching tree data:", error.message);
+        } else {
+          console.error("Error fetching tree data:", error);
+        }
       }
     };
     getTreeData();
   }, [treeId]);
+  
 
   const headerHeight = scrollY.interpolate({
     inputRange: [0, hp("20%")],
