@@ -32,6 +32,11 @@ const treeImages: { [key: string]: any } = {
 
 const defaultImage = require("./assets/images/narra.jpg");
 
+const capitalizeFirstLetter = (str: string) => {
+  if (!str) return "";
+  return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
 const History: React.FC<HistoryProps> = ({ navigation }) => {
   const isFocused = useIsFocused();
   const [history, setHistory] = useState<{ treeId: string; tree_name: string; sci_name: string }[]>([]);
@@ -80,7 +85,7 @@ const History: React.FC<HistoryProps> = ({ navigation }) => {
       >
         {history.length > 0 ? (
           history
-            .filter(tree => tree.tree_name?.trim().toLowerCase() !== "unknown") // <-- FILTER unknown
+            .filter(tree => tree.tree_name?.trim().toLowerCase() !== "unknown")
             .map((tree, index) => (
               <TouchableOpacity
                 key={index}
@@ -97,7 +102,9 @@ const History: React.FC<HistoryProps> = ({ navigation }) => {
                   </View>
 
                   <View style={styles.textContainer}>
-                    <Text style={styles.cardTitle}>{tree.tree_name}</Text>
+                    <Text style={styles.cardTitle}>
+                      {capitalizeFirstLetter(tree.tree_name)}
+                    </Text>
                     <Text style={styles.cardSubtitle}>"{tree.sci_name}"</Text>
                   </View>
 
@@ -108,7 +115,9 @@ const History: React.FC<HistoryProps> = ({ navigation }) => {
               </TouchableOpacity>
             ))
         ) : (
-          <Text>No history available.</Text>
+          <View style={styles.noHistoryContainer}>
+            <Text style={styles.noHistoryText}>No history available</Text>
+          </View>
         )}
         {error && <Text style={styles.errorText}>{error}</Text>}
       </ScrollView>
@@ -148,19 +157,19 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   curvedBackground: {
-    height: 200,
+    height: 250,
     overflow: "hidden",
     justifyContent: "center",
     alignItems: "center",
-    borderBottomLeftRadius: 50,
-    borderBottomRightRadius: 50,
+    borderBottomLeftRadius: 100,
+    borderBottomRightRadius: 100,
   },
   curvedBackgroundImage: {
     width: "100%",
-    height: 190,
+    height: "100%",
     resizeMode: "cover",
-    borderBottomLeftRadius: 50,
-    borderBottomRightRadius: 50,
+    borderBottomLeftRadius: 100,
+    borderBottomRightRadius: 100,
   },
   headerText: {
     fontFamily: "PTSerif-Bold",
@@ -170,8 +179,8 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
   },
   scrollContainer: {
-    paddingTop: 155, 
-    paddingBottom: -20,
+    paddingTop: 205,
+    paddingBottom: 20,
     alignItems: "center",
   },
   card: {
@@ -183,6 +192,7 @@ const styles = StyleSheet.create({
     width: "100%",
     overflow: "hidden",
     flexDirection: "row",
+    alignItems: "center",
   },
   cardContent: {
     flex: 1,
@@ -191,19 +201,22 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   iconContainer: {
-    marginLeft: 60,
+    marginLeft: 40,
     width: 90,
     height: 90,
-    overflow: "hidden",
+    alignItems: "center",
+    justifyContent: "center",
   },
   leafIcon: {
-    width: "100%",
-    height: "100%",
+    width: 90,
+    height: 90,
     resizeMode: "cover",
+    marginLeft: 50,
+    //borderRadius: 35,
   },
   textContainer: {
     flex: 1,
-    paddingLeft: 20,
+    paddingLeft: 50,
   },
   cardTitle: {
     fontFamily: "PTSerif-Bold",
@@ -227,6 +240,18 @@ const styles = StyleSheet.create({
     color: "red",
     textAlign: "center",
     marginTop: 10,
+  },
+  noHistoryContainer: {
+    marginTop: 180,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 20,
+  },
+  noHistoryText: {
+    fontFamily: "PTSerif-Bold",
+    fontSize: 18,
+    color: "#264D32",
+    textAlign: "center",
   },
 });
 

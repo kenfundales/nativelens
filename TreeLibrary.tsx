@@ -49,54 +49,54 @@ const TreeLibrary: React.FC = () => {
 
       {/* Tree List */}
       <View style={styles.listContainer}>
-  {/* Search Bar Floating Above */}
-  <TextInput
-    style={styles.searchBar}
-    placeholder="Search"
-    placeholderTextColor="#999"
-    value={searchQuery}
-    onChangeText={setSearchQuery}
-  />
+      {/* Search Bar Floating Above */}
+      <TextInput
+        style={styles.searchBar}
+        placeholder="Search"
+        placeholderTextColor="#999"
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+      />
 
-  {/* Tree List */}
-  {filteredData.length === 0 ? (
-    <View style={styles.noResultsContainer}>
-      <Text style={styles.noResultsText}>No results found</Text>
-        </View>
-      ) : (
-        <FlatList
-          data={filteredData}
-          keyExtractor={(item) => item.treeId}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              style={styles.card}
-              activeOpacity={0.7}
-              onPress={() => handleTreePress(item.treeId)}
-            >
-              <Image
-                source={item.image}
-                style={styles.imageBackground}
-                resizeMode="cover"
-              />
-              <View style={styles.textContainer}>
-                <Text style={styles.treeName}>{item.name}</Text>
-                <Text style={styles.scientificName}>"{item.scientificName}"</Text>
-              </View>
-            </TouchableOpacity>
+      {/* Tree List */}
+      {filteredData.length === 0 ? (
+        <View style={styles.noResultsContainer}>
+          <Text style={styles.noResultsText}>No results found</Text>
+            </View>
+          ) : (
+            <FlatList
+              data={filteredData}
+              keyExtractor={(item) => item.treeId}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.card}
+                  activeOpacity={0.7}
+                  onPress={() => handleTreePress(item.treeId)}
+                >
+                  <Image
+                    source={item.image}
+                    style={styles.imageBackground}
+                    resizeMode="cover"
+                  />
+                  <View style={styles.textContainer}>
+                    <Text style={styles.treeName}>{item.name}</Text>
+                    <Text style={styles.scientificName}>"{item.scientificName}"</Text>
+                  </View>
+                </TouchableOpacity>
+              )}
+              contentContainerStyle={{ paddingTop: 70, paddingBottom: 120 }} // <--- CHANGE here
+              keyboardShouldPersistTaps="handled"
+            />
           )}
-          contentContainerStyle={{ paddingTop: 70, paddingBottom: 100 }}
-          keyboardShouldPersistTaps="handled"
-        />
-      )}
-    </View>
+        </View>
 
 
-      {/* Bottom Nav */}
-      <View style={styles.bottomNavContainer}>
-        <BottomNavBar />
-      </View>
-    </View>
-  );
+          {/* Bottom Nav */}
+          <View style={styles.bottomNavContainer}>
+            <BottomNavBar />
+          </View>
+        </View>
+      );
 };
 
 const styles = StyleSheet.create({
@@ -105,13 +105,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#E9F0E5",
   },
   topBackground: {
-    height: 280,
+    height: 330,
     alignItems: "center",
-    paddingTop:70,
+    paddingTop:95,
   },
   title: {
     fontFamily: "PTSerif-Bold",
-    fontSize: 32,
+    fontSize: 40,
     color: "white",
     letterSpacing: 1,
   },
@@ -190,14 +190,16 @@ const styles = StyleSheet.create({
     color: "#3D6B43",
     marginTop: 2,
   },
-  bottomNavContainer: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: "#ffffff",
-    paddingBottom: 10,
-  },
+bottomNavContainer: {
+  position: "absolute",
+  bottom: 0,
+  left: 0,
+  right: 0,
+  height: 0, // <-- ADD a fixed height
+  backgroundColor: "#E9F0E5",
+  paddingBottom: 10,
+},
+
 });
 
 export default TreeLibrary;

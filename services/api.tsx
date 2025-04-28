@@ -1,7 +1,7 @@
 import axios from "axios";
 
 
-const API_URL = "http://13.236.119.181:5000"; // Change to EC2 IP when deployed
+const API_URL = "http://13.211.144.239:5000"; // Change to EC2 IP when deployed
 
 // Fetch tree details by ID
 export const fetchTreeDetails = async (treeId: string) => {

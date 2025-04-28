@@ -69,7 +69,6 @@ const TreeInformation = () => {
     } else if (name.includes("talisay")) {
       return require("./assets/images/talisaytree.png");
     }
-    // ➡️ Add more trees as needed
 
     return require("./assets/images/narra-bg.png"); // fallback
   };
@@ -136,7 +135,7 @@ const styles = StyleSheet.create({
   image: {
     width: "100%",
     height: "150%",
-    top: -160,
+    top: -120,
     resizeMode: "cover",
   },
   scrollContainer: {
