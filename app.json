@@ -7,7 +7,10 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
-    "platforms": ["ios", "android"],
+    "platforms": [
+      "ios",
+      "android"
+    ],
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -48,8 +51,9 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "f416e15e-8356-4cbb-9ce4-2ebdb7b78fce"
+        "projectId": "cf6ab283-ad14-4010-91b1-252108edb06d"
       }
-    }
+    },
+    "owner": "joshuacastillon"
   }
 }

@@ -20,9 +20,9 @@ const HomeScreen = () => {
         <View style={styles.overlayTextWrapper}>
           <Text style={styles.overlayText}>Native</Text>
           <Text style={styles.overlayText}>Lens</Text>
-          <Text style={styles.overlayTagline}>
+          {/* <Text style={styles.overlayTagline}>
             Identify and Discover Native Trees in the Philippines
-          </Text>
+          </Text> */}
         </View>
       </View>
 

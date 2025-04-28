@@ -182,7 +182,8 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     alignItems: "center",
     justifyContent: "center",
-    elevation: 2,
+    
+    
   },
   description: {
     fontFamily: "PTSerif-Regular",

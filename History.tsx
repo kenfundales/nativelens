@@ -109,7 +109,7 @@ const History: React.FC<HistoryProps> = ({ navigation }) => {
                   </View>
 
                   <View style={styles.arrowContainer}>
-                    <Text style={styles.arrow}>›</Text>
+                    <Text style={styles.arrow}>></Text>
                   </View>
                 </View>
               </TouchableOpacity>
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
   },
   scrollContainer: {
-    paddingTop: 205,
+    paddingTop: 250,
     paddingBottom: 20,
     alignItems: "center",
   },
