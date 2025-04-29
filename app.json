@@ -22,7 +22,8 @@
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true
         }
-      }
+      },
+      "usesCleartextTraffic": true
     },
     "android": {
       "adaptiveIcon": {
@@ -36,7 +37,7 @@
         "android.permission.INTERNET"
       ],
       "package": "com.kenfundales.MyNewApp",
-      "usesCleartextTraffic": true
+     "usesCleartextTraffic": true
     },
     "web": {
       "favicon": "./assets/favicon.png"

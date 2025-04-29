@@ -1,13 +1,14 @@
 import axios from "axios";
 
-
-const API_URL = "http://13.211.144.239:5000"; // Change to EC2 IP when deployed
+const API_URL = "http://13.211.144.239:5000/"; // Change to EC2 IP when deployed
 
 // Fetch tree details by ID
 export const fetchTreeDetails = async (treeId: string) => {
   try {
     console.log("Fetching from API:", `${API_URL}/trees/${treeId}`);
-    const response = await axios.get(`${API_URL}/trees/${treeId}`, { timeout: 5000 });
+    const response = await axios.get(`${API_URL}/trees/${treeId}`, {
+      timeout: 5000,
+    });
     console.log("Full API Response:", response.data);
     return response.data;
   } catch (error) {
@@ -20,7 +21,9 @@ export const fetchTreeDetails = async (treeId: string) => {
 export const fetchTreeLocations = async (treeId: string) => {
   try {
     console.log("Fetching from API:", `${API_URL}/trees/${treeId}/locations`);
-    const response = await axios.get(`${API_URL}/trees/${treeId}/locations`, { timeout: 5000 });
+    const response = await axios.get(`${API_URL}/trees/${treeId}/locations`, {
+      timeout: 5000,
+    });
     console.log("Full API Response:", response.data);
     if (Array.isArray(response.data)) {
       return response.data;
@@ -34,7 +37,11 @@ export const fetchTreeLocations = async (treeId: string) => {
 };
 
 // Add a new location
-export const addTreeLocation = async (treeId: string, latitude: number, longitude: number) => {
+export const addTreeLocation = async (
+  treeId: string,
+  latitude: number,
+  longitude: number
+) => {
   try {
     console.log("Posting to API:", `${API_URL}/locations`);
     const response = await axios.post(

@@ -19,7 +19,12 @@ const pool = new Pool({
   },
 });
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "*",
+  })
+);
+
 app.use(bodyParser.json());
 
 // 1. Get tree details by ID (for information page)
@@ -73,5 +78,5 @@ app.post("/locations", async (req, res) => {
 
 // Start the server
 app.listen(port, "0.0.0.0", () => {
-  console.log(`Server running on http://localhost:${port}`);
+  console.log(`Server running on PORT ${port}`);
 });
