@@ -15,21 +15,35 @@
     },
     "ios": {
       "supportsTablet": true,
+      "config": {
+        "googleMapsApiKey": "AIzaSyA_kdnKlO3iMBmcaidkomXf19qpueQ1aPI"
+      },
       "infoPlist": {
         "NSCameraUsageDescription": "Allow $(PRODUCT_NAME) to access your camera",
         "NSLocationWhenInUseUsageDescription": "This app uses your location to show nearby trees",
         "NSLocationAlwaysUsageDescription": "This app uses your location to show nearby trees",
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true
-        }
+        },
+        "ITSAppUsesNonExemptEncryption": false
       },
-      "usesCleartextTraffic": true
+      "bundleIdentifier": "y"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "usesCleartextTraffic": true,
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": {
+            "scheme": "http"
+          },
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ],
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.ACCESS_FINE_LOCATION",
@@ -37,7 +51,11 @@
         "android.permission.INTERNET"
       ],
       "package": "com.kenfundales.MyNewApp",
-     "usesCleartextTraffic": true
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyA_kdnKlO3iMBmcaidkomXf19qpueQ1aPI"
+        }
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"

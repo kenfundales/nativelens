@@ -1,6 +1,7 @@
 import axios from "axios";
+import { Alert } from "react-native";
 
-const API_URL = "http://13.211.144.239:5000/"; // Change to EC2 IP when deployed
+const API_URL = "http://13.211.144.239:5000"; // Change to EC2 IP when deployed
 
 // Fetch tree details by ID
 export const fetchTreeDetails = async (treeId: string) => {
@@ -12,7 +13,8 @@ export const fetchTreeDetails = async (treeId: string) => {
     console.log("Full API Response:", response.data);
     return response.data;
   } catch (error) {
-    console.error("API error:", error.message);
+    Alert.alert(JSON.stringify(error, null, 2));
+    console.error("API error:", error);
     return null;
   }
 };
@@ -31,7 +33,8 @@ export const fetchTreeLocations = async (treeId: string) => {
     console.log("No valid location data found.");
     return [];
   } catch (error) {
-    console.error("API error:", error.message);
+    Alert.alert(JSON.stringify(error, null, 2));
+    console.error("API error:", error);
     return [];
   }
 };
@@ -52,7 +55,8 @@ export const addTreeLocation = async (
     console.log("Full API Response:", response.data);
     return response.data;
   } catch (error) {
-    console.error("API error:", error.message);
+    console.error("API error:", error);
+    Alert.alert(JSON.stringify(error, null, 2));
     return null;
   }
 };
