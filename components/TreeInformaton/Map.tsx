@@ -55,6 +55,7 @@ const Map: React.FC<MapProps> = ({ treeId }) => {
         style={styles.map}
         initialRegion={initialRegion}
         showsUserLocation={true}
+        provider="google" // <-- Specify Google Maps provider here
         scrollEnabled={false}
       >
         {locations.length > 0 && locations.map((location, index) => {

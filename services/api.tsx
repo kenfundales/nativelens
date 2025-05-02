@@ -1,7 +1,8 @@
 import axios from "axios";
+import Constants from "expo-constants";
 
-
-const API_URL = "http://13.211.144.239:5000"; // Change to EC2 IP when deployed
+// Fetch the API URL from the extra section of app.json
+const API_URL = Constants.expoConfig?.extra?.API_URL ?? "http://13.211.144.239:5000"; // Fallback if not found
 
 // Fetch tree details by ID
 export const fetchTreeDetails = async (treeId: string) => {

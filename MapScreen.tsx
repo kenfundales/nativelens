@@ -32,8 +32,8 @@ const MapScreen = () => {
   const [region, setRegion] = useState<Region>({
     latitude: 12.8797,
     longitude: 121.774,
-    latitudeDelta: 5.0,
-    longitudeDelta: 5.0,
+    latitudeDelta: 12.0,
+    longitudeDelta: 12.0,
   });
 
   useEffect(() => {
@@ -45,7 +45,13 @@ const MapScreen = () => {
       try {
         const locationData = await fetchTreeLocations(treeId);
         if (Array.isArray(locationData) && locationData.length > 0) {
-          setLocations(locationData);
+          const locationsWithAddresses = await Promise.all(
+            locationData.map(async (location) => {
+              const address = await getAddressFromCoordinates(location.latitude, location.longitude);
+              return { ...location, address };
+            })
+          );
+          setLocations(locationsWithAddresses);
         } else {
           setError("No locations found for this tree.");
         }
@@ -56,6 +62,24 @@ const MapScreen = () => {
     };
     getTreeLocations();
   }, [treeId]);
+
+  const getAddressFromCoordinates = async (lat: number, lon: number) => {
+    try {
+      const apiKey = "AIzaSyA_kdnKlO3iMBmcaidkomXf19qpueQ1aPI";
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lon}&key=${apiKey}`
+      );
+      const data = await response.json();
+      if (data.status === "OK" && data.results.length > 0) {
+        return data.results[0]?.formatted_address || "Address not found";
+      } else {
+        return "Address not found";
+      }
+    } catch (error) {
+      console.error("Geocoding error:", error);
+      return "Error fetching address";
+    }
+  };
 
   const handleAddLocation = async () => {
     try {
@@ -78,61 +102,85 @@ const MapScreen = () => {
   };
 
   const handleSaveLocation = async () => {
-  if (!userLocation || !treeId) return;
+    if (!userLocation || !treeId) return;
 
-  // Check for existing location
-  const locationExists = locations.some(
-    (loc) =>
-      Number(loc.latitude).toFixed(5) === userLocation.latitude.toFixed(5) &&
-      Number(loc.longitude).toFixed(5) === userLocation.longitude.toFixed(5)
-  );
+    const locationExists = locations.some(
+      (loc) =>
+        Number(loc.latitude).toFixed(5) === userLocation.latitude.toFixed(5) &&
+        Number(loc.longitude).toFixed(5) === userLocation.longitude.toFixed(5)
+    );
 
-  if (locationExists) {
-    alert("This location already exists in the database.");
-    return;
-  }
+    if (locationExists) {
+      alert("This location already exists in the database.");
+      return;
+    }
 
-  try {
-    const response = await axios.post("http://13.236.119.181:5000/locations", {
-      tree_id: treeId,
-      latitude: userLocation.latitude,
-      longitude: userLocation.longitude,
+    try {
+      const response = await axios.post("http://13.211.144.239:5000/locations", {
+        tree_id: treeId,
+        latitude: userLocation.latitude,
+        longitude: userLocation.longitude,
+      });
+
+      setLocations((prev) => [...prev, response.data]);
+      setUserLocation(null);
+      setIsAddingLocation(false);
+      setAddingError(null);
+      alert("Location saved successfully!");
+    } catch (err) {
+      console.error("Error saving location:", err);
+      setAddingError("Failed to save location.");
+    }
+  };
+
+  const handleRegionChange = (newRegion: Region) => {
+    const philippinesBounds = {
+      latitudeMin: 5.0,
+      latitudeMax: 20.0,
+      longitudeMin: 115.0,
+      longitudeMax: 130.0,
+    };
+
+    let { latitude, longitude, latitudeDelta, longitudeDelta } = newRegion;
+
+    // Clamp latitude and longitude within Philippine boundaries
+    const clampedLatitude = Math.min(Math.max(latitude, philippinesBounds.latitudeMin), philippinesBounds.latitudeMax);
+    const clampedLongitude = Math.min(Math.max(longitude, philippinesBounds.longitudeMin), philippinesBounds.longitudeMax);
+
+    const isOutOfBounds = latitude !== clampedLatitude || longitude !== clampedLongitude;
+
+    if (isOutOfBounds && mapRef.current) {
+      mapRef.current.animateToRegion(
+        {
+          latitude: clampedLatitude,
+          longitude: clampedLongitude,
+          latitudeDelta,
+          longitudeDelta,
+        },
+        800 // Smoothness duration in milliseconds
+      );
+    }
+
+    setRegion({
+      latitude: clampedLatitude,
+      longitude: clampedLongitude,
+      latitudeDelta,
+      longitudeDelta,
     });
-
-    setLocations((prev) => [...prev, response.data]);
-    setUserLocation(null);
-    setIsAddingLocation(false);
-    setAddingError(null);
-    alert("Location saved successfully!");
-  } catch (err) {
-    console.error("Error saving location:", err);
-    setAddingError("Failed to save location.");
-  }
-};
-
+  };
 
   return (
     <View style={styles.container}>
       <MapView
         ref={mapRef}
         style={styles.map}
-        region={region} // Controlled region (locked to the Philippines)
+        region={region}
         showsUserLocation={true}
-        scrollEnabled={false}
-        zoomEnabled={false}
-        pitchEnabled={false}
-        rotateEnabled={false}
+        onRegionChangeComplete={handleRegionChange}
+        zoomEnabled={true}
         minZoomLevel={5}
-        maxZoomLevel={5}
-        onRegionChangeComplete={() => {
-          // Reset region if it somehow changes (e.g., due to user glitch)
-          setRegion({
-            latitude: 12.8797,
-            longitude: 121.774,
-            latitudeDelta: 5.0,
-            longitudeDelta: 5.0,
-          });
-        }}
+        maxZoomLevel={20}
+        provider="google"
       >
         {locations.map((location, index) => (
           <Marker
@@ -141,12 +189,12 @@ const MapScreen = () => {
               latitude: Number(location.latitude),
               longitude: Number(location.longitude),
             }}
-            title={location.name || `Tree Location ${index + 1}`}
-            description={location.description || "A native tree location"}
+            title={`Tree Location ${index + 1}`}
+            description={location.address || "A native tree location"}
           >
             <RNImage
               source={require("./assets/icons/treemarker.png")}
-              style={{ width: 40, height: 40, resizeMode: "contain" }}
+              style={{ width: 24, height: 24, resizeMode: "contain" }}
             />
           </Marker>
         ))}
@@ -175,7 +223,9 @@ const MapScreen = () => {
       )}
 
       {addingError && (
-        <Text style={{ position: "absolute", bottom: 180, color: "red", paddingHorizontal: 20 }}>{addingError}</Text>
+        <Text style={{ position: "absolute", bottom: 180, color: "red", paddingHorizontal: 20 }}>
+          {addingError}
+        </Text>
       )}
     </View>
   );
