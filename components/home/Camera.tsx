@@ -1,5 +1,5 @@
 import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Camera as LucideCamera, Upload } from "lucide-react-native";
 import { StyleSheet, Text, TouchableOpacity, View, Alert, Image, Modal } from "react-native";
 import * as ImageManipulator from "expo-image-manipulator";
@@ -25,6 +25,11 @@ export default function Camera() {
   const cameraRef = useRef<CameraView | null>(null);
   const [alignmentError, setAlignmentError] = useState(false);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const [flash, setFlash] = useState<"off" | "on">("off");
+
+  useEffect(() => {
+    requestPermission();
+  }, []);
 
   const treeIdMap: { [key: string]: string } = {
     narra: "1",
@@ -40,6 +45,15 @@ export default function Camera() {
     banaba: "Lagerstroemia speciosa",
     kamagong: "Diospyros philippinensis",
     talisay: "Terminalia catappa",
+  };
+
+  const toggleFlash = () => {
+    if (!cameraRef.current) {
+      Alert.alert("Error", "Camera not ready");
+      return;
+    }
+    const newFlashMode = flash === "off" ? "on" : "off";
+    setFlash(newFlashMode);
   };
 
   if (!permission) return <View />;
@@ -100,7 +114,9 @@ export default function Camera() {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       base64: true,
-      quality: 1,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.8,
     });
 
     if (!result.canceled && result.assets.length > 0) {
@@ -127,7 +143,7 @@ export default function Camera() {
   async function sendToAI(base64Image: string) {
     try {
       const response = await axios.post(
-        "https://detect.roboflow.com/natreee/13",
+        "https://detect.roboflow.com/natreee/14",
         base64Image,
         {
           params: { api_key: "AbTTWufj54wj07u2ALrz" },
@@ -177,7 +193,6 @@ export default function Camera() {
         </Text>
       </View>
 
-
       <View style={styles.imageWrapper}>
         {imageUri ? (
           <>
@@ -189,7 +204,12 @@ export default function Camera() {
             )}
           </>
         ) : (
-          <CameraView ref={cameraRef} style={styles.camera} facing={facing} />
+          <CameraView
+            ref={cameraRef}
+            style={styles.camera}
+            facing={facing}
+            flash={flash}
+          />
         )}
 
         <View style={styles.overlay}>
@@ -210,6 +230,9 @@ export default function Camera() {
 
       <View style={styles.controlsContainer}>
         <View style={styles.captureButtonContainer}>
+          <TouchableOpacity style={styles.uploadButton} onPress={toggleFlash}>
+            <Icon name={flash === "on" ? "flash-on" : "flash-off"} size={24} color="black" />
+          </TouchableOpacity>
           <TouchableOpacity style={styles.captureButton} onPress={takePicture} disabled={loading}>
             <LucideCamera size={32} color="black" />
           </TouchableOpacity>
@@ -228,7 +251,10 @@ export default function Camera() {
               ) : (
                 <Text style={styles.modalTopText}></Text>
               )}
-              <TouchableOpacity style={styles.closeIcon} onPress={() => setModalVisible(false)}>
+              <TouchableOpacity style={styles.closeIcon} onPress={() => {
+                setModalVisible(false);
+                setImageUri(null);
+              }}>
                 <Icon name="close" size={22} color="white" />
               </TouchableOpacity>
             </View>
@@ -262,6 +288,7 @@ export default function Camera() {
                   style={styles.viewButton}
                   onPress={() => {
                     setModalVisible(false);
+                    setImageUri(null);
                     navigation.navigate("TreeInformation", { treeId: (Camera as any).currentTreeId });
                   }}
                 >
@@ -278,27 +305,151 @@ export default function Camera() {
 
 // Styling
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "black", marginTop: -80 },
-  message: { textAlign: "center", paddingBottom: 10, color: "white" },
-  permissionButton: { padding: 10, backgroundColor: "#739E57", borderRadius: 5 },
-  buttonText: { color: "white", fontSize: 16 },
-  imageWrapper: { width: "100%", height: "60%", justifyContent: "flex-start", marginTop: 0, alignItems: "center", borderRadius: 10, overflow: "hidden" },
-  imagePreview: { width: "100%", height: "100%", resizeMode: "cover" },
-  camera: { flex: 1, width: "100%", height: "100%" },
-  controlsContainer: { width: "100%", position: "absolute", bottom: 50, alignItems: "center" },
-  captureButtonContainer: { justifyContent: "center", alignItems: "center" },
-  captureButton: { width: 80, height: 80, justifyContent: "center", alignItems: "center", backgroundColor: "white", borderRadius: 100, borderWidth: 2, borderColor: "gray" },
-  uploadButton: { width: 50, height: 50, justifyContent: "center", alignItems: "center", backgroundColor: "white", borderRadius: 25, borderWidth: 2, borderColor: "gray", position: "absolute", left: "25%", bottom: 15 },
-  loadingOverlay: { position: "absolute", width: "100%", height: "100%", backgroundColor: "rgba(0, 0, 0, 0.6)", justifyContent: "center", alignItems: "center" },
-  loadingText: { color: "white", fontSize: 20, fontWeight: "bold" },
+  container: 
+  { flex: 1, 
+    justifyContent: "center", 
+    alignItems: "center", 
+    backgroundColor: "black", 
+    marginTop: -80
+  },
+  message: { 
+    textAlign: "center", 
+    paddingBottom: 10, 
+    color: "white" 
+},
+  permissionButton: { 
+    padding: 10, 
+    backgroundColor: "#739E57",
+     borderRadius: 5 
+    },
+  buttonText: { 
+    color: "white", 
+    fontSize: 16
+   },
+  imageWrapper: { 
+    width: "100%", 
+    height: "60%", 
+    justifyContent: "flex-start",
+    marginTop: 0, 
+    alignItems: "center",
+    borderRadius: 10, 
+    overflow: "hidden" 
+  },
+  imagePreview: {
+     width: "100%",
+    height: "100%",
+    resizeMode: "cover"
+       },
+  camera: { 
+    flex: 1,
+     width: "100%", 
+     height: "100%"
+     },
+  controlsContainer: { 
+    width: "100%", position:
+     "absolute", 
+     bottom: 50, 
+     alignItems: "center"
+     },
+  captureButtonContainer: { 
+    justifyContent: "center",
+     alignItems: "center" 
+    },
+  captureButton: { 
+    width: 80,
+     height: 80, 
+     justifyContent: "center", 
+     alignItems: "center", 
+     backgroundColor: "white", 
+     borderRadius: 100, borderWidth: 2,
+    borderColor: "gray"
+   },
+  uploadButton: { 
+    width: 50, height: 50, 
+    justifyContent: "center", 
+    alignItems: "center", 
+    backgroundColor: "white", 
+    borderRadius: 25, 
+    borderWidth: 2, 
+    borderColor: "gray", 
+    position: "absolute", 
+    left: "24%",
+     bottom: 15 
+    },
+  loadingOverlay: { 
+    position: "absolute",
+     width: "100%",
+      height: "100%", 
+      backgroundColor: "rgba(0, 0, 0, 0.6)", 
+      justifyContent: "center", 
+      alignItems: "center" 
+    },
+  loadingText: {
+     color: "white", 
+     fontSize: 20,
+      fontWeight: "bold" 
+    },
   overlay: { ...StyleSheet.absoluteFillObject, justifyContent: "center", alignItems: "center" },
-  squareContainer: { width: 250, height: 400, position: "relative" },
-  cornerTopLeft: { position: "absolute", top: 0, left: 0, width: 50, height: 50, borderTopWidth: 5, borderLeftWidth: 5, borderColor: "white", borderTopLeftRadius: 25 },
-  cornerTopRight: { position: "absolute", top: 0, right: 0, width: 50, height: 50, borderTopWidth: 5, borderRightWidth: 5, borderColor: "white", borderTopRightRadius: 25 },
-  cornerBottomLeft: { position: "absolute", bottom: 0, left: 0, width: 50, height: 50, borderBottomWidth: 5, borderLeftWidth: 5, borderColor: "white", borderBottomLeftRadius: 25 },
-  cornerBottomRight: { position: "absolute", bottom: 0, right: 0, width: 50, height: 50, borderBottomWidth: 5, borderRightWidth: 5, borderColor: "white", borderBottomRightRadius: 25 },
-  errorOverlay: { position: "absolute", top: 10, left: 10, backgroundColor: "rgba(255, 0, 0, 0.6)", padding: 10, borderRadius: 5 },
-  errorText: { color: "white", fontWeight: "bold" },
+  squareContainer: { 
+    width: 250, 
+    height: 400, 
+    position: "relative" },
+  cornerTopLeft: { 
+    position: "absolute",
+    top: 0, 
+    left: 0, 
+    width: 50, 
+    height: 50, 
+    borderTopWidth: 5, 
+    borderLeftWidth: 5, 
+    borderColor: "white", 
+    borderTopLeftRadius: 25 
+  },
+  cornerTopRight: { 
+    position: "absolute", 
+    top: 0, 
+    right: 0, 
+    width: 50, 
+    height: 50, 
+    borderTopWidth: 5,
+     borderRightWidth: 5, 
+     borderColor: "white", 
+     borderTopRightRadius: 25 
+    },
+  cornerBottomLeft: { 
+    position: "absolute", 
+    bottom: 0, 
+    left: 0, 
+    width: 50, 
+    height: 50, 
+    borderBottomWidth: 5, 
+    borderLeftWidth: 5, 
+    borderColor: "white", 
+    borderBottomLeftRadius: 25
+   },
+  cornerBottomRight: { 
+    position: "absolute", 
+    bottom: 0, 
+    right: 0, 
+    width: 50, 
+    height: 50, 
+    borderBottomWidth: 5, 
+    borderRightWidth: 5, 
+    borderColor: "white",
+     borderBottomRightRadius: 25 
+  },
+  errorOverlay: { 
+    position: "absolute", 
+    top: 10, 
+    left: 10, 
+    backgroundColor: "rgba(255, 0, 0, 0.6)", 
+    padding: 10, 
+    borderRadius: 5 
+  },
+  errorText: { 
+    color: "white", 
+    fontWeight: "bold" 
+  },
   topInstructionContainer: {
     width: "100%",
     justifyContent: "center",
@@ -307,12 +458,11 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   topInstruction: {
-    fontSize: 18,
+    fontSize:  18,
     fontWeight: "bold",
     color: "white",
     textAlign: "center",
   },
-  
   modalContainer: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0,0,0,0.5)" },
   modalCard: { width: "80%", borderRadius: 18, overflow: "hidden", backgroundColor: "white", elevation: 8, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.15, shadowRadius: 8 },
   modalTopBar: { backgroundColor: "#3D6B41", paddingVertical: 16, paddingHorizontal: 20, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },

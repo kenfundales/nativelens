@@ -56,14 +56,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   cardTitle: {
-    fontFamily: "PTSerif-Bold",
-    fontWeight: "600",
+    fontFamily: 'LeagueSpartan-ExtraBold',
+    fontWeight: "700",
     fontSize: 24,
     color: "#274C2A",
     marginBottom: 5,
   },
   cardSubtitle: {
-    fontFamily: "PTSerif-Regular",
+    fontFamily: 'LeagueSpartan-Regular',
     fontSize: 15,
     color: "#6A8E4E",
   },

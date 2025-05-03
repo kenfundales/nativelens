@@ -110,7 +110,8 @@ const styles = StyleSheet.create({
     paddingTop:95,
   },
   title: {
-    fontFamily: "PTSerif-Bold",
+    fontFamily: 'LeagueSpartan-ExtraBold',
+    fontWeight: "700",
     fontSize: 40,
     color: "white",
     letterSpacing: 1,
@@ -180,7 +181,8 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
   },
   treeName: {
-    fontFamily: "PTSerif-Bold",
+    fontFamily: 'LeagueSpartan-ExtraBold',
+    fontWeight: "700",
     fontSize: 19,
     color: "#264D32",
   },

@@ -11,7 +11,7 @@ import { useRoute } from "@react-navigation/native";
 import { RouteProp } from "@react-navigation/native";
 
 type RootStackParamList = {
-  TreeInformation: { treeId: string };
+  TreeInformation: { treeId: string; fromCamera?: boolean };
 };
 
 const TreeInformation = () => {
@@ -19,6 +19,7 @@ const TreeInformation = () => {
   const route = useRoute<RouteProp<RootStackParamList, "TreeInformation">>();
   const [tree, setTree] = useState<any>(null);
   const treeId = route.params?.treeId;
+  const fromCamera = route.params?.fromCamera; // Get fromCamera from route params
 
   useEffect(() => {
     const getTreeData = async () => {
@@ -53,7 +54,7 @@ const TreeInformation = () => {
   // 🌳 Dynamic image mapping based on tree_name
   const getTreeImage = (treeName: string | undefined) => {
     if (!treeName) {
-      return require("./assets/images/narra-bg.png"); // Default image if name is undefined
+      return require("./assets/images/loading-tree-image.png"); // Default image if name is undefined
     }
 
     const name = treeName.toLowerCase();
@@ -70,7 +71,7 @@ const TreeInformation = () => {
       return require("./assets/images/talisaytree.png");
     }
 
-    return require("./assets/images/narra-bg.png"); // fallback
+    return require("./assets/images/loading-tree-image.png"); // fallback
   };
 
   return (
@@ -79,7 +80,7 @@ const TreeInformation = () => {
         {tree ? (
           <Image source={getTreeImage(tree.tree_name)} style={styles.image} />
         ) : (
-          <Image source={require("./assets/images/narra-bg.png")} style={styles.image} />
+          <Image source={require("./assets/images/loading-tree-image.png")} style={styles.image} />
         )}
       </Animated.View>
 
@@ -103,12 +104,12 @@ const TreeInformation = () => {
             </View>
           </View>
 
-          {/* Pass treeId explicitly */}
+          {/* Pass treeId and fromCamera explicitly */}
           <View style={styles.buttonContainer}>
             <GrowthNeedsButton treeId={treeId} />
             <LifeSpanButton treeId={treeId} />
             <GrowthPeriod treeId={treeId} />
-            <Map treeId={treeId} />
+            <Map treeId={treeId} fromCamera={fromCamera} />
           </View>
         </Animated.View>
       </Animated.ScrollView>
@@ -160,7 +161,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   title: {
-    fontFamily: "PTSerif-Regular",
+    fontFamily: 'LeagueSpartan-ExtraBold',
+    fontWeight: "700",
     fontSize: 24,
     color: "#3d3d3d",
     textAlign: "left",
@@ -174,6 +176,7 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   descriptionBox: {
+    fontFamily: 'LeagueSpartan-ExtraBold',
     paddingTop: 15,
     borderRadius: 15,
     width: "100%",

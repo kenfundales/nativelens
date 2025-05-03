@@ -6,6 +6,7 @@ import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { fetchTreeDetails } from "./services/api"; // Importing the fetchTreeDetails API function
 
+
 export default function App() {
   const [fontsLoaded] = useFonts({
     "PTSerif-Regular": require("./assets/fonts/PTSerif-Regular.ttf"),
@@ -39,8 +40,11 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
-      <StackNavigator />
-    </NavigationContainer>
+   
+
+      <NavigationContainer>
+        <StackNavigator />
+      </NavigationContainer>
+   
   );
 }

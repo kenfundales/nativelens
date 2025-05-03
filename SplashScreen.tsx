@@ -32,10 +32,9 @@ const SplashScreen = ({ navigation }) => {
         style={styles.button}
         onPress={() => navigation.navigate("HomeScreen")}
       >
-        {/* L Shape Top Left */}
-        <View style={styles.lShapeTopLeft} />
-        {/* Reverse L Shape Bottom Left */}
-        <View style={styles.lShapeBottomLeft} />
+        {/* <View style={styles.lShapeTopLeft} /> */}
+{/*         
+        <View style={styles.lShapeBottomLeft} /> */}
 
         <Text style={styles.buttonText}>GET STARTED</Text>
         <Feather name="arrow-right" size={24} color="#234F1E" style={styles.arrowIcon} />
@@ -47,7 +46,7 @@ const SplashScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF', // Full white background
+    backgroundColor: '#FFFFFF',
     justifyContent: 'flex-start',
     alignItems: 'center',
   },
@@ -59,9 +58,9 @@ const styles = StyleSheet.create({
     left: 0,
     width: '100%',
     height: '96.5%',
-    borderTopLeftRadius: 10,
-    borderBottomLeftRadius: 10,
-    overflow: 'hidden', // <-- THIS removes the gray edges!!
+    borderTopLeftRadius: 30,
+    borderBottomLeftRadius: 30,
+    overflow: 'hidden',
   },
   background: {
     flex: 1,
@@ -72,60 +71,58 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     padding: 20,
-    backgroundColor: 'rgba(0,0,0,0.2)', // optional slight dark tint
+    backgroundColor: 'rgba(0,0,0,0.2)',
   },
   titleWrapper: {
-    marginTop: hp('10%'),
+    marginTop: -hp('20%'),
   },
   welcomeText: {
     color: '#FFFFFF',
     fontSize: 25,
     letterSpacing: 1,
     marginBottom: 5,
-    fontFamily: 'PTSerif-Regular',
+    fontFamily: 'LeagueSpartan-Regular',
   },
   title: {
     color: '#FFFFFF',
     fontSize: 70,
-    fontWeight: 'bold',
-    fontFamily: 'PTSerif-Bold',
+    fontFamily: 'LeagueSpartan-ExtraBold',
     lineHeight: 70,
   },
   subtitle: {
     color: '#FFFFFF',
     fontSize: 20,
     marginTop: 10,
-    fontFamily: 'PTSerif-Regular',
+    fontFamily: 'LeagueSpartan-Regular',
   },
   button: {
     position: 'absolute',
     bottom: hp('7%'),
     alignSelf: 'center',
-    width: wp('85%'),
+    width: wp('95%'),
     height: hp('7%'),
     backgroundColor: 'white',
     borderTopRightRadius: 20,
     borderBottomRightRadius: 20,
-    justifyContent: 'center', // center the text
-    alignItems: 'center',     // center the text
-    zIndex: 10, // important for absolutely positioning inside
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
   },
   buttonText: {
     color: '#234F1E',
     fontSize: 24,
-    fontWeight: 'bold',
-    fontFamily: 'PTSerif-Bold',
+    fontFamily: 'LeagueSpartan-Bold',
   },
   arrowIcon: {
     position: 'absolute',
-    right: 20,   // Push arrow close to right edge
+    right: 20,
     top: '50%',
-    transform: [{ translateY: -12 }], // center the arrow vertically (because size is 24)
+    transform: [{ translateY: -12 }],
   },
   lShapeTopLeft: {
     position: 'absolute',
-    top: hp('6.3%'), // right at the top edge of button
-    left: wp('0.2%'), // small negative to pull a bit to left
+    top: hp('6.3%'),
+    left: wp('0.2%'),
     width: wp('5%'),
     height: hp('2.5%'),
     borderTopWidth: hp('0.8%'),
@@ -133,10 +130,11 @@ const styles = StyleSheet.create({
     borderColor: 'white',
     borderTopLeftRadius: wp('4%'),
     zIndex: 11,
+    backgroundColor: "red",
   },
   lShapeBottomLeft: {
     position: 'absolute',
-    bottom: hp('6.2s%'), // right at bottom edge of button
+    bottom: hp('6.2%'),
     left: wp('0.2.5%'),
     width: wp('5%'),
     height: hp('2.5%'),
@@ -145,8 +143,8 @@ const styles = StyleSheet.create({
     borderColor: 'white',
     borderBottomLeftRadius: wp('4%'),
     zIndex: 11,
+    backgroundColor: "red",
   },
-  
 });
 
 export default SplashScreen;

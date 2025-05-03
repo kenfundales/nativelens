@@ -1,5 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, Dimensions, TouchableOpacity, Image, ImageBackground } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  SafeAreaView,
+  ScrollView,
+  Dimensions,
+  TouchableOpacity,
+  Image,
+  ImageBackground,
+  Alert,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import BottomNavBar from "./components/bottomNavBar";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RouteProp, useIsFocused } from "@react-navigation/native";
@@ -65,6 +77,49 @@ const History: React.FC<HistoryProps> = ({ navigation }) => {
     return treeImages[treeName] || defaultImage;
   };
 
+  const clearHistory = async () => {
+    try {
+      await AsyncStorage.removeItem("treeHistory");
+      setHistory([]);
+    } catch (e) {
+      console.error("Failed to clear history:", e);
+      Alert.alert("Error", "Failed to clear history.");
+    }
+  };
+
+  const deleteSingleHistoryItem = async (treeIdToDelete: string) => {
+    try {
+      const newHistory = history.filter(item => item.treeId !== treeIdToDelete);
+      setHistory(newHistory);
+      await AsyncStorage.setItem("treeHistory", JSON.stringify(newHistory));
+    } catch (e) {
+      console.error("Failed to delete item from history:", e);
+      Alert.alert("Error", "Failed to delete item.");
+    }
+  };
+
+  const confirmDeleteItem = (treeId: string) => {
+    Alert.alert(
+      "Delete History Item",
+      "Are you sure you want to delete this item?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Delete", style: "destructive", onPress: () => deleteSingleHistoryItem(treeId) },
+      ]
+    );
+  };
+
+  const confirmClearHistory = () => {
+    Alert.alert(
+      "Clear History",
+      "Are you sure you want to clear all history?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Yes", onPress: clearHistory },
+      ]
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
@@ -74,7 +129,14 @@ const History: React.FC<HistoryProps> = ({ navigation }) => {
           style={styles.curvedBackground}
           imageStyle={styles.curvedBackgroundImage}
         >
-          <Text style={styles.headerText}>HISTORY</Text>
+          {history.length > 0 && (
+            <TouchableOpacity style={styles.clearButton} onPress={confirmClearHistory}>
+              <Ionicons name="trash-outline" size={28} color="white" />
+            </TouchableOpacity>
+          )}
+          <View style={styles.headerTitleContainer}>
+            <Text style={styles.headerText}>HISTORY</Text>
+          </View>
         </ImageBackground>
       </View>
 
@@ -92,6 +154,7 @@ const History: React.FC<HistoryProps> = ({ navigation }) => {
                 style={styles.card}
                 activeOpacity={0.7}
                 onPress={() => handleCardPress(tree.treeId)}
+                onLongPress={() => confirmDeleteItem(tree.treeId)}
               >
                 <View style={styles.cardContent}>
                   <View style={styles.iconContainer}>
@@ -171,8 +234,20 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 100,
     borderBottomRightRadius: 100,
   },
+  clearButton: {
+    position: "absolute",
+    top: 40,
+    right: 20,
+    zIndex: 20,
+  },
+  headerTitleContainer: {
+    marginTop: 50,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   headerText: {
-    fontFamily: "PTSerif-Bold",
+    fontFamily: 'LeagueSpartan-ExtraBold',
+    fontWeight: "700",
     fontSize: 40,
     color: "#ffffff",
     textAlign: "center",
@@ -212,14 +287,14 @@ const styles = StyleSheet.create({
     height: 90,
     resizeMode: "cover",
     marginLeft: 50,
-    //borderRadius: 35,
   },
   textContainer: {
     flex: 1,
     paddingLeft: 50,
   },
   cardTitle: {
-    fontFamily: "PTSerif-Bold",
+    fontFamily: 'LeagueSpartan-ExtraBold',
+    fontWeight: "700",
     fontSize: 19,
     color: "#264D32",
   },

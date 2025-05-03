@@ -5,21 +5,26 @@ import {
   TouchableOpacity,
   Text,
   Image as RNImage,
+  ScrollView,
+  TouchableWithoutFeedback,
 } from "react-native";
 import MapView, { Marker, Region } from "react-native-maps";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { fetchTreeLocations } from "./services/api";
+import BottomNavBar from "./components/bottomNavBar";
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
 import * as Location from "expo-location";
 import axios from "axios";
 
 type RootStackParamList = {
-  MapScreen: { treeId: string };
+  MapScreen: { treeId: string; fromCamera?: boolean };
 };
 
 const MapScreen = () => {
   const navigation = useNavigation();
   const route = useRoute<RouteProp<RootStackParamList, "MapScreen">>();
   const treeId = route.params?.treeId;
+  const fromCamera = route.params?.fromCamera; // Get fromCamera from route params
 
   const mapRef = useRef<MapView | null>(null);
 
@@ -28,13 +33,18 @@ const MapScreen = () => {
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [isAddingLocation, setIsAddingLocation] = useState(false);
   const [addingError, setAddingError] = useState<string | null>(null);
+  const [currentAddress, setCurrentAddress] = useState<string | null>(null);
+  const [isPanelExpanded, setIsPanelExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
-  const [region, setRegion] = useState<Region>({
+  const initialRegion: Region = {
     latitude: 12.8797,
     longitude: 121.774,
     latitudeDelta: 12.0,
-    longitudeDelta: 12.0,
-  });
+    longitudeDelta: 12.0, 
+  };
+
+  const [region, setRegion] = useState<Region>(initialRegion);
 
   useEffect(() => {
     const getTreeLocations = async () => {
@@ -65,13 +75,33 @@ const MapScreen = () => {
 
   const getAddressFromCoordinates = async (lat: number, lon: number) => {
     try {
-      const apiKey = "AIzaSyA_kdnKlO3iMBmcaidkomXf19qpueQ1aPI";
+      const apiKey = "AIzaSyA_kdnKlO3iMBmcaidkomXf19qpueQ1aPI"; // Use environment variable in production
       const response = await fetch(
         `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lon}&key=${apiKey}`
       );
       const data = await response.json();
+
       if (data.status === "OK" && data.results.length > 0) {
-        return data.results[0]?.formatted_address || "Address not found";
+        const components = data.results[0].address_components;
+
+        let barangay = "";
+        let city = "";
+        let region = "";
+
+        for (const comp of components) {
+          if (comp.types.includes("sublocality_level_1") || comp.types.includes("neighborhood")) {
+            barangay = comp.long_name;
+          }
+          if (comp.types.includes("locality")) {
+            city = comp.long_name;
+          }
+          if (comp.types.includes("administrative_area_level_1")) {
+            region = comp.long_name;
+          }
+        }
+
+        const parts = [barangay, city, region].filter(Boolean);
+        return parts.length > 0 ? parts.join(", ") : "Address not found";
       } else {
         return "Address not found";
       }
@@ -94,6 +124,10 @@ const MapScreen = () => {
       const { latitude, longitude } = location.coords;
 
       setUserLocation({ latitude, longitude });
+
+      const address = await getAddressFromCoordinates(latitude, longitude);
+      setCurrentAddress(address);
+
       setIsAddingLocation(true);
     } catch (err) {
       console.error("Error getting location:", err);
@@ -122,8 +156,11 @@ const MapScreen = () => {
         longitude: userLocation.longitude,
       });
 
-      setLocations((prev) => [...prev, response.data]);
+      const address = await getAddressFromCoordinates(userLocation.latitude, userLocation.longitude);
+
+      setLocations((prev) => [...prev, { ...response.data, address }]);
       setUserLocation(null);
+      setCurrentAddress(null);
       setIsAddingLocation(false);
       setAddingError(null);
       alert("Location saved successfully!");
@@ -134,91 +171,79 @@ const MapScreen = () => {
   };
 
   const handleRegionChange = (newRegion: Region) => {
-    const philippinesBounds = {
-      latitudeMin: 5.0,
-      latitudeMax: 20.0,
-      longitudeMin: 115.0,
-      longitudeMax: 130.0,
-    };
+    const isZoomedOut = newRegion.latitudeDelta > 20 || newRegion.longitudeDelta > 20;
 
-    let { latitude, longitude, latitudeDelta, longitudeDelta } = newRegion;
-
-    // Clamp latitude and longitude within Philippine boundaries
-    const clampedLatitude = Math.min(Math.max(latitude, philippinesBounds.latitudeMin), philippinesBounds.latitudeMax);
-    const clampedLongitude = Math.min(Math.max(longitude, philippinesBounds.longitudeMin), philippinesBounds.longitudeMax);
-
-    const isOutOfBounds = latitude !== clampedLatitude || longitude !== clampedLongitude;
-
-    if (isOutOfBounds && mapRef.current) {
-      mapRef.current.animateToRegion(
-        {
-          latitude: clampedLatitude,
-          longitude: clampedLongitude,
-          latitudeDelta,
-          longitudeDelta,
-        },
-        800 // Smoothness duration in milliseconds
-      );
+    if (isZoomedOut && mapRef.current) {
+      mapRef.current.animateToRegion(initialRegion, 800);
     }
 
-    setRegion({
-      latitude: clampedLatitude,
-      longitude: clampedLongitude,
-      latitudeDelta,
-      longitudeDelta,
-    });
+    setRegion(newRegion);
+  };
+
+  const handleMapPress = () => {
+    if (isAddingLocation) {
+      setIsAddingLocation(false);
+      setUserLocation(null);
+      setCurrentAddress(null);
+    }
   };
 
   return (
     <View style={styles.container}>
-      <MapView
-        ref={mapRef}
-        style={styles.map}
-        region={region}
-        showsUserLocation={true}
-        onRegionChangeComplete={handleRegionChange}
-        zoomEnabled={true}
-        minZoomLevel={5}
-        maxZoomLevel={20}
-        provider="google"
-      >
-        {locations.map((location, index) => (
-          <Marker
-            key={index.toString()}
-            coordinate={{
-              latitude: Number(location.latitude),
-              longitude: Number(location.longitude),
-            }}
-            title={`Tree Location ${index + 1}`}
-            description={location.address || "A native tree location"}
-          >
-            <RNImage
-              source={require("./assets/icons/treemarker.png")}
-              style={{ width: 24, height: 24, resizeMode: "contain" }}
-            />
-          </Marker>
-        ))}
-      </MapView>
+      <TouchableWithoutFeedback onPress={handleMapPress}>
+        <MapView
+          ref={mapRef}
+          style={styles.map}
+          initialRegion={initialRegion}
+          showsUserLocation={true}
+          onRegionChangeComplete={handleRegionChange}
+          zoomEnabled={true}
+          minZoomLevel={5}
+          maxZoomLevel={20}
+          provider="google"
+        >
+          {locations.map((location, index) => (
+            <Marker
+              key={index.toString()}
+              coordinate={{
+                latitude: Number(location.latitude),
+                longitude: Number(location.longitude),
+              }}
+              title={`Tree Location ${index + 1}`}
+              description={location.address || "A native tree location"}
+            >
+              <RNImage
+                source={require("./assets/icons/treemarker.png")}
+                style={{ width: wp('5%'), height: hp('5%'), resizeMode: "contain" }}
+              />
+            </Marker>
+          ))}
+        </MapView>
+      </TouchableWithoutFeedback>
 
-      <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()}>
-        <Text style={styles.closeText}>Close</Text>
-      </TouchableOpacity>
-
-      {!isAddingLocation && (
+      {!isAddingLocation && fromCamera && (
         <TouchableOpacity style={styles.addButton} onPress={handleAddLocation}>
           <Text style={styles.buttonText}>Add Location</Text>
         </TouchableOpacity>
       )}
 
       {isAddingLocation && userLocation && (
-        <View style={styles.saveContainer}>
-          <Text style={styles.coordsText}>
-            Latitude: {userLocation.latitude.toFixed(5)}{"\n"}
-            Longitude: {userLocation.longitude.toFixed(5)}
-          </Text>
-          <TouchableOpacity style={styles.saveButton} onPress={handleSaveLocation}>
-            <Text style={styles.buttonText}>Save Location</Text>
-          </TouchableOpacity>
+        <View style={styles.locationCard}>
+          <View style={styles.locationHeaderContainer}>
+            <Text style={styles.locationHeaderText}>Your current location</Text>
+          </View>
+          <View style={styles.locationContent}>
+            {currentAddress && (
+              <Text style={styles.locationName}>{currentAddress}</Text>
+            )}
+            <Text style={styles.locationCoords}>
+              Latitude: {userLocation.latitude.toFixed(5)}{"\n"}
+              Longitude: {userLocation.longitude.toFixed(5)}
+            </Text>
+            <TouchableOpacity style={styles.saveLocationButton} onPress={handleSaveLocation}>
+              <Text style={styles.saveLocationText}>Save Location</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       )}
 
@@ -227,6 +252,37 @@ const MapScreen = () => {
           {addingError}
         </Text>
       )}
+     
+
+      {/* Top Left Panel: List of Locations */}
+    
+        <View style={styles.topRightPanel}>
+          <TouchableOpacity onPress={() => setIsExpanded(!isExpanded)}>
+            <Text style={styles.locationListTitle}>Prominent Tree Locations</Text>
+          </TouchableOpacity>
+
+          {isExpanded && (
+            locations.length > 0 ? (
+              <ScrollView style={styles.scrollList}>
+                {locations.map((loc, idx) => (
+                  <View key={idx.toString()} style={styles.locationItem}>
+                    <Text style={styles.locationText}>🌳 {loc.address || "Unknown Area"}</Text>
+                    <Text style={styles.coordsTextSmall}>
+                      Lat: {Number(loc.latitude).toFixed(5)}, Lng: {Number(loc.longitude).toFixed(5)}
+                    </Text>
+                  </View>
+                ))}
+              </ScrollView>
+            ) : (
+              <Text style={styles.noLocationsText}>No locations available.</Text>
+            )
+          )}
+        </View>
+
+      {/* Bottom Nav */}
+      <View style={styles.bottomNavContainer}>
+        <BottomNavBar />
+      </View>
     </View>
   );
 };
@@ -234,16 +290,6 @@ const MapScreen = () => {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   map: { width: "100%", height: "100%" },
-  closeButton: {
-    position: "absolute",
-    top: 40,
-    right: 20,
-    backgroundColor: "white",
-    padding: 10,
-    borderRadius: 10,
-    elevation: 5,
-  },
-  closeText: { fontSize: 16, fontWeight: "bold" },
   addButton: {
     position: "absolute",
     bottom: 100,
@@ -253,23 +299,105 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     elevation: 5,
   },
-  saveContainer: {
+  buttonText: { color: "white", fontWeight: "bold" },
+  locationCard: {
     position: "absolute",
-    bottom: 100,
+    width: "50%",
+    height: hp("30%"),
+    bottom: 150,
     left: 20,
+    right: 20,
     backgroundColor: "white",
+    borderRadius: 16,
+    overflow: "hidden",
+    elevation: 6,
+  },
+  locationHeaderContainer: {
+    backgroundColor: "#5A7D4E",
+    padding: 12,
+  },
+  locationHeaderText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  locationContent: {
+    padding: 16,
+    alignItems: "center",
+  },
+  locationName: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#5A7D4E",
+    marginBottom: 4,
+    textAlign: "center",
+  },
+  locationCoords: {
+    fontSize: 14,
+    color: "#333",
+    marginBottom: 12,
+  },
+  saveLocationButton: {
+    backgroundColor: "#4CAF50",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
     padding: 12,
     borderRadius: 10,
     elevation: 5,
+    alignItems: "center",
+    minWidth: 140,
   },
-  saveButton: {
-    marginTop: 10,
-    backgroundColor: "#2196F3",
+  saveLocationText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 15,
+  },
+  topRightPanel: {
+    position: "absolute",
+    top: 55,
+    right: 10,
+    width: wp("50%"),
+    maxHeight: hp("40%"),
+    backgroundColor: "white",
+    borderRadius: 10,
+    elevation: 5,
     padding: 10,
-    borderRadius: 8,
+    textAlign: "center",
+    paddingBottom: 10,
   },
-  buttonText: { color: "white", fontWeight: "bold" },
-  coordsText: { fontSize: 14, color: "black" },
+  locationListTitle: {
+    textAlign: "center",
+    alignSelf: "center",
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 8,
+    color: "#5A7D4E",
+  },
+  scrollList: {
+    maxHeight: hp("35%"),
+  },
+  locationItem: {
+    marginBottom: 10,
+  },
+  locationText: {
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+  coordsTextSmall: {
+    fontSize: 12,
+    color: "gray",
+  },
+  noLocationsText: {
+    fontSize: 14,
+    color: "gray",
+    textAlign: "center",
+  },
+  bottomNavContainer: {
+    position: "absolute",
+    bottom: 0,
+    width: "100%",
+  },
 });
 
 export default MapScreen;

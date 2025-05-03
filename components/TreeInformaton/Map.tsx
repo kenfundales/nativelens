@@ -5,14 +5,15 @@ import { fetchTreeLocations } from "../../services/api";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 
 type RootStackParamList = {
-  MapScreen: { treeId: string };
+  MapScreen: { treeId: string; fromCamera?: boolean };
 };
 
 interface MapProps {
   treeId: string;
+  fromCamera?: boolean;
 }
 
-const Map: React.FC<MapProps> = ({ treeId }) => {
+const Map: React.FC<MapProps> = ({ treeId, fromCamera }) => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [locations, setLocations] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -54,29 +55,30 @@ const Map: React.FC<MapProps> = ({ treeId }) => {
       <MapView
         style={styles.map}
         initialRegion={initialRegion}
-        showsUserLocation={true}
-        provider="google" // <-- Specify Google Maps provider here
+        provider="google"
         scrollEnabled={false}
       >
-        {locations.length > 0 && locations.map((location, index) => {
-          console.log(`Rendering Marker ${index + 1} in Map:`, location);
-          return (
-            <Marker
-              key={index.toString()}
-              coordinate={{
-                latitude: Number(location.latitude),
-                longitude: Number(location.longitude),
-              }}
-              title={location.name || `Tree Location ${index + 1}`}
-              description={location.description || "A native tree location"}
-            />
-          );
-        })}
+        {locations.length > 0 &&
+          locations.map((location, index) => {
+            console.log(`Rendering Marker ${index + 1} in Map:`, location);
+            return (
+              <Marker
+                key={index.toString()}
+                coordinate={{
+                  latitude: Number(location.latitude),
+                  longitude: Number(location.longitude),
+                }}
+                title={location.name || `Tree Location ${index + 1}`}
+                description={location.description || "A native tree location"}
+                image={require("../../assets/icons/treemarker.png")} // ✅ Make sure this file exists
+              />
+            );
+          })}
         {error && <Text style={styles.errorText}>{error}</Text>}
       </MapView>
       <TouchableOpacity
         style={styles.touchableOverlay}
-        onPress={() => navigation.navigate("MapScreen", { treeId })}
+        onPress={() => navigation.navigate("MapScreen", { treeId, fromCamera })}
       />
     </View>
   );

@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "NativeLens",
+    "name": "Native Lens",
     "slug": "MyNewApp",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/nativelens-logo.jpg",
+    "icon": "./assets/images/native-lens-logo.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": false,
     "platforms": [
@@ -12,11 +12,12 @@
       "android"
     ],
     "splash": {
-      "image": "./assets/images/nativelens-logo.jpg",
+      "image": "./assets/images/native-lens-logo.png",
       "resizeMode": "contain",
-      "backgroundColor": "#264D32" 
+      "backgroundColor": "#264D32"
     },
     "ios": {
+      "icon": "./assets/images/native-lens-logo.png",
       "supportsTablet": true,
       "infoPlist": {
         "NSCameraUsageDescription": "Allow NativeLens to access your camera",
@@ -24,12 +25,14 @@
         "NSLocationAlwaysUsageDescription": "This app uses your location to show nearby trees",
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true
-        }
-      }
+        },
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "bundleIdentifier": "com.joshuacastillon.nativelens"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/images/native-lens-logo.png",
         "backgroundColor": "#ffffff"
       },
       "permissions": [
@@ -64,7 +67,7 @@
       ]
     ],
     "extra": {
-      "API_URL": "http://13.211.144.239:5000", 
+      "API_URL": "http://13.211.144.239:5000",
       "eas": {
         "projectId": "cf6ab283-ad14-4010-91b1-252108edb06d"
       }

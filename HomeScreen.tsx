@@ -20,9 +20,7 @@ const HomeScreen = () => {
         <View style={styles.overlayTextWrapper}>
           <Text style={styles.overlayText}>Native</Text>
           <Text style={styles.overlayText}>Lens</Text>
-          {/* <Text style={styles.overlayTagline}>
-            Identify and Discover Native Trees in the Philippines
-          </Text> */}
+          
         </View>
       </View>
 
@@ -55,7 +53,7 @@ const styles = StyleSheet.create({
     zIndex: 2,
   },
   overlayText: {
-    fontFamily: "PTSerif-Regular",
+    fontFamily: 'LeagueSpartan-Regular',
     fontSize: 50,
     color: "white",
     textShadowColor: "rgba(0, 0, 0, 0.5)",
