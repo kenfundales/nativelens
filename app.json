@@ -1,0 +1,74 @@
+{
+  "expo": {
+    "name": "NativeLens",
+    "slug": "MyNewApp",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/nativelens-logo.jpg",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": false,
+    "platforms": [
+      "ios",
+      "android"
+    ],
+    "splash": {
+      "image": "./assets/images/nativelens-logo.jpg",
+      "resizeMode": "contain",
+      "backgroundColor": "#264D32" 
+    },
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "Allow NativeLens to access your camera",
+        "NSLocationWhenInUseUsageDescription": "This app uses your location to show nearby trees",
+        "NSLocationAlwaysUsageDescription": "This app uses your location to show nearby trees",
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true
+        }
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.INTERNET"
+      ],
+      "package": "com.joshuacastillon.nativelens",
+      "minSdkVersion": 21,
+      "versionCode": 1,
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyA_kdnKlO3iMBmcaidkomXf19qpueQ1aPI"
+        }
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-font",
+      "react-native-vision-camera",
+      "expo-location",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ]
+    ],
+    "extra": {
+      "API_URL": "http://13.211.144.239:5000", 
+      "eas": {
+        "projectId": "cf6ab283-ad14-4010-91b1-252108edb06d"
+      }
+    },
+    "owner": "joshuacastillon"
+  }
+}
