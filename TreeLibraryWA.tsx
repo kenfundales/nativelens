@@ -3,6 +3,7 @@ import { View, Text, FlatList, TextInput, StyleSheet, Dimensions, TouchableOpaci
 import BottomNavBar from "./components/bottomNavBar";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import Icon from 'react-native-vector-icons/Ionicons'; 
 
 const { width } = Dimensions.get("window");
 
@@ -50,13 +51,16 @@ const TreeLibraryWA: React.FC = () => {
       {/* Tree List */}
       <View style={styles.listContainer}>
         {/* Search Bar Floating Above */}
-        <TextInput
-          style={styles.searchBar}
-          placeholder="Search"
-          placeholderTextColor="#999"
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={styles.searchBar}
+            placeholder="Search"
+            placeholderTextColor="#999"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+          <Icon name="search" size={20} color="#999" style={styles.searchIcon} />
+        </View>
 
         {/* Tree List */}
         {filteredData.length === 0 ? (
@@ -112,23 +116,29 @@ const styles = StyleSheet.create({
     fontFamily: 'LeagueSpartan-ExtraBold',
     fontSize: 40,
     color: "white",
-    letterSpacing: -1,
   },
   curvedWhiteArea: {
     backgroundColor: "#E9F0E5",
     borderTopRightRadius: 50,
-    paddingTop: 20,
+    paddingTop: 40,
     alignItems: "center",
   },
-  searchBar: {
+  searchContainer: {
     position: "absolute",
     top: 15,
     alignSelf: "center",
-    backgroundColor: "#fff",
     width: "85%",
     height: 45,
+    zIndex: 10,
+  },
+  searchBar: {
+    flex: 1,
+    fontFamily:"LeagueSpartan-Regular",
+    backgroundColor: "#fff",
+    height: "100%",
     borderRadius: 25,
-    paddingHorizontal: 30,
+    paddingLeft: 40, // give space for icon
+    paddingRight: 20,
     fontSize: 16,
     borderWidth: 1,
     borderColor: "#ccc",
@@ -137,8 +147,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 5,
-    zIndex: 10,
   },
+  searchIcon: {
+    position: "absolute",
+    left: 12,
+    top: 12,
+  },  
   listContainer: {
     flex: 1,
     backgroundColor: "#E9F0E5",

@@ -16,7 +16,9 @@ import BottomNavBar from "./components/bottomNavBar";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RouteProp, useIsFocused } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen"; 
 import { Feather } from "@expo/vector-icons";
+
 
 type RootStackParamList = {
   History: undefined;
@@ -54,6 +56,11 @@ const History: React.FC<HistoryProps> = ({ navigation }) => {
   const isFocused = useIsFocused();
   const [history, setHistory] = useState<{ treeId: string; tree_name: string; sci_name: string }[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [showClearModal, setShowClearModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedTreeId, setSelectedTreeId] = useState<string | null>(null);
+
+
 
   useEffect(() => {
     const loadHistory = async () => {
@@ -100,26 +107,15 @@ const History: React.FC<HistoryProps> = ({ navigation }) => {
   };
 
   const confirmDeleteItem = (treeId: string) => {
-    Alert.alert(
-      "Delete History Item",
-      "Are you sure you want to delete this item?",
-      [
-        { text: "Cancel", style: "cancel" },
-        { text: "Delete", style: "destructive", onPress: () => deleteSingleHistoryItem(treeId) },
-      ]
-    );
+    setSelectedTreeId(treeId);
+    setShowDeleteModal(true);
   };
+  
 
   const confirmClearHistory = () => {
-    Alert.alert(
-      "Clear History",
-      "Are you sure you want to clear all history?",
-      [
-        { text: "Cancel", style: "cancel" },
-        { text: "Yes", onPress: clearHistory },
-      ]
-    );
+    setShowClearModal(true);
   };
+  
 
   return (
     <SafeAreaView style={styles.container}>
@@ -140,6 +136,48 @@ const History: React.FC<HistoryProps> = ({ navigation }) => {
           </View>
         </ImageBackground>
       </View>
+      {showClearModal && (
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Clear History</Text>
+            <Text style={styles.modalMessage}>Are you sure you want to clear all history?</Text>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity onPress={() => setShowClearModal(false)} style={styles.cancelButton}>
+                <Text style={styles.buttonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => { clearHistory(); setShowClearModal(false); }} style={styles.confirmButton}>
+                <Text style={styles.buttonText}>Yes</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      )}
+
+      {showDeleteModal && (
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Delete History Item</Text>
+            <Text style={styles.modalMessage}>Are you sure you want to delete this item?</Text>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity onPress={() => setShowDeleteModal(false)} style={styles.cancelButton}>
+                <Text style={styles.buttonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  if (selectedTreeId) {
+                    deleteSingleHistoryItem(selectedTreeId);
+                  }
+                  setShowDeleteModal(false);
+                  setSelectedTreeId(null);
+                }}
+                style={styles.confirmButton}
+              >
+                <Text style={styles.buttonText}>Delete</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      )}
 
       {/* Content */}
       <ScrollView
@@ -221,7 +259,7 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   curvedBackground: {
-    height: 250,
+    height: hp("29%"),
     overflow: "hidden",
     justifyContent: "center",
     alignItems: "center",
@@ -325,6 +363,64 @@ const styles = StyleSheet.create({
     color: "#264D32",
     textAlign: "center",
   },
+  modalOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 999,
+  },
+  modalContainer: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 15,
+    width: '80%',
+    alignItems: 'center',
+  },
+  modalTitle: {
+    textAlign: 'center',
+    fontFamily: 'LeagueSpartan-ExtraBold',
+    fontSize: 22,
+    color: '#234F1E',
+    marginBottom: 10,
+  },
+  modalMessage: {
+    fontFamily: 'PTSerif-Regular',
+    fontSize: 16,
+    color: '#333',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  cancelButton: {
+    flex: 1,
+    backgroundColor: '#ccc',
+    padding: 10,
+    borderRadius: 10,
+    marginRight: 10,
+    alignItems: 'center',
+  },
+  confirmButton: {
+    flex: 1,
+    backgroundColor: '#A9C5A0',
+    padding: 10,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  buttonText: {
+    fontFamily: 'LeagueSpartan-Bold',
+    fontSize: 16,
+    color: '#234F1E',
+  },
+  
 });
 
 export default History;

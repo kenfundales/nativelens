@@ -11,6 +11,7 @@ export default function App() {
     "PTSerif-Regular": require("./assets/fonts/PTSerif-Regular.ttf"),
     "PTSerif-Bold": require("./assets/fonts/PTSerif-Bold.ttf"),
     "PTSerif-Italic": require("./assets/fonts/PTSerif-Italic.ttf"),
+    "Poppins-Italic": require("./assets/fonts/Poppins-Italic.ttf"),
     "LeagueSpartan-Bold": require("./assets/fonts/LeagueSpartan-Bold.ttf"),
     "LeagueSpartan-SemiBold": require("./assets/fonts/LeagueSpartan-SemiBold.ttf"),
     "LeagueSpartan-ExtraBold": require("./assets/fonts/LeagueSpartan-ExtraBold.ttf"),

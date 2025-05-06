@@ -7,6 +7,7 @@ import {
   Image,
   Animated,
   ViewStyle,
+  Linking,
 } from "react-native";
 import { fetchTreeDetails } from "../../services/api";
 import { ChevronDown } from "lucide-react-native";
@@ -18,7 +19,7 @@ interface GrowthNeedsButtonProps {
 
 const GrowthNeedsButton: React.FC<GrowthNeedsButtonProps> = ({ treeId, style }) => {
   const [open, setOpen] = useState(false);
-  const [growthNeeds, setGrowthNeeds] = useState<string | null>(null);
+  const [growthNeeds, setGrowthNeeds] = useState<{ text: string; source: string | null } | null>(null);
   const rotation = useState(new Animated.Value(0))[0];
 
   useEffect(() => {
@@ -26,10 +27,16 @@ const GrowthNeedsButton: React.FC<GrowthNeedsButtonProps> = ({ treeId, style }) 
       if (!treeId) return;
       try {
         const data = await fetchTreeDetails(treeId);
-        setGrowthNeeds(data?.growth_needs || "No specific growth needs listed.");
+        setGrowthNeeds({
+          text: data?.growth_needs || "No specific growth needs listed.",
+          source: data?.source_link || "Test",
+        });
       } catch (error) {
         console.error("Failed to fetch growth needs:", error);
-        setGrowthNeeds("Failed to fetch growth needs.");
+        setGrowthNeeds({
+          text: "Failed to fetch growth needs.",
+          source: null,
+        });
       }
     };
     getGrowthNeeds();
@@ -50,7 +57,7 @@ const GrowthNeedsButton: React.FC<GrowthNeedsButtonProps> = ({ treeId, style }) 
         onPress={toggleDropdown}
         style={[
           styles.dropdownButton,
-          open && styles.dropdownButtonOpen, // Conditionally remove bottom radius
+          open && styles.dropdownButtonOpen,
         ]}
       >
         <Image
@@ -81,8 +88,15 @@ const GrowthNeedsButton: React.FC<GrowthNeedsButtonProps> = ({ treeId, style }) 
       {open && (
         <View style={styles.dropdownContent}>
           <Text style={styles.contentText}>
-            {growthNeeds}
+            {growthNeeds?.text}
           </Text>
+          {growthNeeds?.source && (
+            <Text
+              style={styles.sourceLink}
+              onPress={() => Linking.openURL(growthNeeds.source!)}
+            >
+            </Text>
+          )}
         </View>
       )}
     </View>
@@ -145,6 +159,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "white",
     textAlign: "justify",
+  },
+  sourceLink: {
+    color: "#A1D99B",
+    fontSize: 10,
+    marginTop: -15,
+    fontFamily: "PTSerif-Italic",
+    textDecorationLine: "underline",
   },
 });
 

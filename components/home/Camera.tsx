@@ -9,6 +9,9 @@ import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-nat
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 import { addTreeToHistory } from "../../History";
 import Icon from "react-native-vector-icons/MaterialIcons";
+import LeafOverlay from "../../assets/images/leaf-transparent.png"; 
+import { Animated } from "react-native";
+
 
 
 
@@ -30,6 +33,20 @@ export default function Camera() {
   const [alignmentError, setAlignmentError] = useState(false);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [flash, setFlash] = useState<"off" | "on">("off");
+  const leafOpacity = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      Animated.timing(leafOpacity, {
+        toValue: 0,
+        duration: 1000,
+        useNativeDriver: true,
+      }).start();
+    }, 5000);
+  
+    return () => clearTimeout(timer);
+  }, []);
+  
 
   useEffect(() => {
     requestPermission();
@@ -216,14 +233,20 @@ export default function Camera() {
           />
         )}
 
-        <View style={styles.overlay}>
-          <View style={styles.squareContainer}>
-            <View style={styles.cornerTopLeft} />
-            <View style={styles.cornerTopRight} />
-            <View style={styles.cornerBottomLeft} />
-            <View style={styles.cornerBottomRight} />
-          </View>
+      <View style={styles.overlay}>
+        <View style={styles.squareContainer}>
+          <View style={styles.cornerTopLeft} />
+          <View style={styles.cornerTopRight} />
+          <View style={styles.cornerBottomLeft} />
+          <View style={styles.cornerBottomRight} />
         </View>
+        <Animated.Image
+            source={require("../../assets/images/leaf-transparent.png")}
+            style={[styles.leafOverlay, { opacity: leafOpacity }]}
+            resizeMode="contain"
+          />
+      </View>
+
 
         {alignmentError && (
           <View style={styles.errorOverlay}>
@@ -550,4 +573,12 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 16,
   },
+  leafOverlay: {
+    width: 400,
+    height: 500,
+    position: "absolute",
+    opacity: 0.3,
+    zIndex: 1,
+  },
+  
 });
