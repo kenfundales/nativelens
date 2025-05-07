@@ -42,7 +42,7 @@ export default function Camera() {
         duration: 1000,
         useNativeDriver: true,
       }).start();
-    }, 5000);
+    },10000);
   
     return () => clearTimeout(timer);
   }, []);
@@ -257,9 +257,9 @@ export default function Camera() {
 
       <View style={styles.controlsContainer}>
         <View style={styles.captureButtonContainer}>
-          <TouchableOpacity style={styles.uploadButton} onPress={uploadImage} disabled={loading}>
+          {/* <TouchableOpacity style={styles.uploadButton} onPress={uploadImage} disabled={loading}>
             <Upload size={24} color="black" />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <TouchableOpacity style={styles.captureButton} onPress={takePicture} disabled={loading}>
             <LucideCamera size={32} color="black" />
           </TouchableOpacity>
@@ -396,6 +396,7 @@ const styles = StyleSheet.create({
     flexDirection: "row", // <--- Add this to arrange children in a row
     justifyContent: "space-around", // or "space-between" or "center"
     alignItems: "center",
+    paddingLeft: 60,
   },
   captureButton: { 
     width: 90,

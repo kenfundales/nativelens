@@ -15,7 +15,7 @@ type RootStackParamList = {
   SplashScreen: undefined;
   HomeScreen: undefined;
   TreeInformation: undefined;
-  TreeInformationWA: undefined;
+  TreeInformationWA: { treeId: string };
   TreeLibrary: undefined;
   TreeLibraryWA: undefined;
   History: undefined;
@@ -39,7 +39,6 @@ export default function StackNavigator() {
       <Stack.Screen name="MapScreen" component={MapScreen} />
       <Stack.Screen name="MapScreenWA" component={MapScreenWA} />
       <Stack.Screen name="Camera" component={Camera} />
-
     </Stack.Navigator>
   );
 }

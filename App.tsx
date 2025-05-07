@@ -43,9 +43,9 @@ export default function App() {
     prepare();
   }, []);
 
-  if (!fontsLoaded || !isReady) {
-    return <Text>Loading...</Text>;
-  }
+  // if (!fontsLoaded || !isReady) {
+  //   return <Text>Loading...</Text>;
+  // }
 
   return (
     <NavigationContainer>
